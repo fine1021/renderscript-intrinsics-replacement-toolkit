@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.library'
     id 'kotlin-android'
+    id 'maven-publish'
 }
 
 android {
@@ -40,10 +41,39 @@ android {
             path file('src/main/cpp/CMakeLists.txt')
         }
     }
+    // AGP 7.1.0+
+//    publishing {
+//        singleVariant('release') {
+//            withSourcesJar()
+//        }
+//    }
 }
 
 dependencies {
-
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'androidx.core:core-ktx:1.6.0'
+}
+
+task sourceJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier "sources"
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.my-company'
+            artifactId = 'renderscript-toolkit'
+            version = '0.8'
+
+            afterEvaluate {
+                from components.release
+                artifact sourceJar
+            }
+        }
+    }
+    repositories {
+        maven {
+            url = "${project.buildDir}/repo"
+        }
+    }
 }
