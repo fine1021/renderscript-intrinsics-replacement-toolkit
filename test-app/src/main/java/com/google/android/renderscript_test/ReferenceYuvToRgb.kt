@@ -33,8 +33,27 @@ fun referenceYuvToRgb(inputSignedArray: ByteArray, sizeX: Int, sizeY: Int, forma
     when (format) {
         YuvFormat.NV21 -> {
             val startY = 0
-            val startU = sizeX * sizeY + 1
             val startV = sizeX * sizeY
+            val startU = startV + 1
+
+            for (y in 0 until sizeY) {
+                for (x in 0 until sizeX) {
+                    val offsetY = y * sizeX + x
+                    val offsetU = ((y shr 1) * sizeX + (x shr 1) * 2)
+                    val offsetV = ((y shr 1) * sizeX + (x shr 1) * 2)
+                    output[x, y] = yuvToRGBA4(
+                        inputArray[startY + offsetY],
+                        inputArray[startU + offsetU],
+                        inputArray[startV + offsetV]
+                    )
+                }
+            }
+        }
+
+        YuvFormat.YUV_420_888 -> {
+            val startY = 0
+            val startU = sizeX * sizeY
+            val startV = startU + 1
 
             for (y in 0 until sizeY) {
                 for (x in 0 until sizeX) {
